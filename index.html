@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+      <meta name="renderer" content="webkit">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+      <title>项目发布</title>
+      <link rel="stylesheet" href="./node_modules/layui-src/src/css/layui.css"  media="all">
+      <style>
+          .layui-form-item {
+              margin-bottom: 5px;
+          }
+          .layui-form-label {
+              padding: 9px 5px;
+              width: 100px;
+          }
+          /*  .layui-input, .layui-textarea {
+        /*      width: 90%;
+            }
+
+            layui-edge {
+                margin-right: 22px;}*/
+      </style>
+  </head>
+  <body>
+  <blockquote class="layui-elem-quote layui-text">
+       注意：
+  </blockquote>
+<br>
+  <fieldset class="layui-elem-field site-demo-button">
+      <legend>服务器</legend>
+      <form class="layui-form" action="">
+          <div class="layui-form-item">
+              <label class="layui-form-label">选择服务器</label>
+              <div class="layui-input-block">
+                  <select name="" id="drpServer" lay-verify="required" lay-reqtext="服务器必填选择，岂能不选？" lay-filter="server"></select>
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">IP地址</label>
+              <div class="layui-input-block">
+                  <input id="txtIp" type="text"  lay-verify="required" lay-reqtext="IP地址是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">用户名</label>
+              <div class="layui-input-block">
+                  <input id="txtUserName" type="text"  lay-verify="required" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">密码</label>
+              <div class="layui-input-block">
+                  <input id="txtPwd" type="text"  lay-verify="required" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">备注</label>
+              <div class="layui-input-block">
+                  <input id="txtDescription" type="text"  lay-verify="title" lay-reqtext="" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label"></label>
+              <button type="button" id="btnAddConfig" class="layui-btn layui-btn-normal">新增配置</button>
+              <button type="button" id="btnEditConfig" class="layui-btn layui-btn-normal">修改配置</button>
+              <button type="button" id="btnConnection" class="layui-btn layui-btn-normal">连接</button>
+          </div>
+      </form>
+  </fieldset>
+
+  <fieldset class="layui-elem-field site-demo-button" >
+      <legend>项目</legend>
+      <form class="layui-form" action="">
+          <div class="layui-form-item">
+              <label class="layui-form-label">选择项目</label>
+              <div class="layui-input-block">
+                  <select name="" id="drpProjects" lay-verify="required" lay-reqtext="项目必填选择，岂能不选？" lay-filter="project"></select>
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">项目名称</label>
+              <div class="layui-input-block">
+                  <input id="txtProjectName" type="text"  lay-verify="required" lay-reqtext="项目名称是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">项目路径</label>
+              <div class="layui-input-block">
+                  <input id="txtProjectPath" type="text"  lay-verify="required" lay-reqtext="项目路径是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+                  <button type="button" class="layui-btn layui-btn-normal" id="btnProjectPath">选择项目路径</button>
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">打包路径</label>
+              <div class="layui-input-block">
+                  <input id="txtPackPath" type="text"  lay-verify="required" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+                  <button type="button" class="layui-btn layui-btn-normal" id="btnSelectPackPath">选择打包路径</button>
+                  <button type="button" class="layui-btn layui-btn-normal" id="btnPublish">C#项目发布</button>
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">服务器路径</label>
+              <div class="layui-input-block">
+                  <input id="txtProjectServerPath" type="text"  lay-verify="required" lay-reqtext="服务器路径是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">端口映射</label>
+              <div class="layui-input-block">
+                  <input id="txtPort" type="text"  lay-verify="required" lay-reqtext="端口映射是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">容器挂载</label>
+              <div class="layui-input-block">
+                  <input id="txtVolume" type="text"  lay-verify="required" lay-reqtext="容器挂载是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">发布前执行命令</label>
+              <div class="layui-input-block">
+                  <input id="txtBeforeShell" type="text"   placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">发布后执行命令</label>
+              <div class="layui-input-block">
+                  <input id="txtAfterShell" type="text"   placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label">项目描述</label>
+              <div class="layui-input-block">
+                  <input id="txtProjectDescription" type="text"   placeholder="请输入" autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+          <div class="layui-form-item">
+              <label class="layui-form-label"></label>
+              <button type="button" id="btnAddProjectConfig" class="layui-btn layui-btn-normal">新增配置</button>
+              <button type="button" id="btnEditProjectConfig" class="layui-btn layui-btn-normal">修改配置</button>
+              <button type="button" id="btnDockerDeploy" class="layui-btn layui-btn-normal">Docker发布</button>
+              <button type="button" id="btnFileDeploy" class="layui-btn layui-btn-normal">文件发布</button>
+          </div>
+      </form>
+
+      </div>
+  </fieldset>
+
+
+  <script src="./node_modules/layui-src/src/layui.js" charset="utf-8"></script>
+    <script>
+        // You can also require other files to run in this process
+        const main = require('./renderer.js');
+
+        layui.use(['form','upload'], function(){
+            var form = layui.form
+                ,layer = layui.layer;
+            main.createLayer(layer);
+
+
+
+            // //监听指定开关
+            // form.on('switch(switchTest)', function(data){
+            //     layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+            //         offset: '6px'
+            //     });
+            //     layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)
+            // });
+
+            form.on('select(server)', function(data){
+                main.setServerInfo(data.value);
+            });
+
+            form.on('select(project)', function(data){
+                main.setProjectInfo(data.value);
+            });
+
+            //监听提交
+            form.on('submit(demo1)', function(data){
+                layer.alert(JSON.stringify(data.field), {
+                    title: '最终的提交信息'
+                })
+                return false;
+            });
+        });
+
+    </script>
+
+  </body>
+</html>

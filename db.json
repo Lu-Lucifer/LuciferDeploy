@@ -1,0 +1,59 @@
+{
+  "Servers": [
+    {
+      "id": "bc9e2e04-e49e-4242-a3cf-393a791bc742",
+      "ip": "lubaba.xyz",
+      "username": "root",
+      "userpwd": "",
+      "description": "lubaba"
+    },
+    {
+      "id": "251d9050-93b9-4f65-ad74-c8e9fcfa2edf",
+      "ip": "safemarket.com.cn",
+      "username": "root",
+      "userpwd": "123",
+      "description": "safemarket.com.cn"
+    }
+  ],
+  "Projects": [
+    {
+      "id": "bed0e22d-a00d-4061-8bd8-728aee785dc1",
+      "projectName": "Shield",
+      "projectPath": "/Users/lucifer/Projects/Shield/Core/bin/Release",
+      "projectPackPath": "/Users/lucifer/Projects/Shield/Core/bin/Deploy",
+      "projectServerPath": "/root/Test",
+      "projectPort": "5000:5000",
+      "projectVolumes": "-v /root/Test/Logs:/publish/Logs -v /root/Test/Update:/publish/Update",
+      "beforeShell": "ls",
+      "afterShell": "ls",
+      "description": "测试一下",
+      "deployVersion": ""
+    },
+    {
+      "id": "d41bd74e-0d66-4b3b-b80a-3cbd373558aa",
+      "projectName": "p2pserver",
+      "projectPath": "/Users/lucifer/Projects/Demo/Wireboy.Socket.P2PSocket-dev/src/P2PSocket.StartUp/bin/Release",
+      "projectPackPath": "/Users/lucifer/Projects/Demo/Wireboy.Socket.P2PSocket-dev/src/P2PSocket.StartUp/bin/Deploy",
+      "projectServerPath": "/root/Deploy",
+      "projectPort": "3488:3488",
+      "projectVolumes": "",
+      "beforeShell": "ls",
+      "afterShell": "ls",
+      "description": "mstsc内网穿透",
+      "deployVersion": ""
+    },
+    {
+      "id": "f83929e4-5293-48f0-8db3-ba0a5aa54006",
+      "projectName": "QualityControlSystem",
+      "projectPath": "/Users/lucifer/Projects/MyProjects/QualityControlSystem/QualityControlSystem/bin/Release",
+      "projectPackPath": "/Users/lucifer/Projects//MyProjects/QualityControlSystem/QualityControlSystem/bin/Deploy",
+      "projectServerPath": "/root/web",
+      "projectPort": "5000:5000",
+      "projectVolumes": "-v /root/web/Logs:/publish/Logs",
+      "beforeShell": "ls",
+      "afterShell": "ls",
+      "description": "发布",
+      "deployVersion":""
+    }
+  ]
+}
