@@ -30,7 +30,7 @@
   },
   "repository": "https://github.com/LuciferJun1227",
   "author": "Lucifer",
-  "license": "CC0-1.0",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^7.1.7",
     "electron-builder": "^22.2.0"
