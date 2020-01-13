@@ -3,7 +3,9 @@
 
 ### 使用到的技术
 1、Electron
+
 2、NodeJS
+
 3、JavaScript
 
 ### 使用方法
