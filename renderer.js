@@ -4,7 +4,6 @@ const compressing = require('./compressingHelper.js');
 const fs = require('./fsHelper.js');
 const ipcRenderer = require('electron').ipcRenderer;
 const exec = require('child_process').exec;
-
 var layer;//layui中的layer
 
 function setValue(control, value) {
@@ -152,8 +151,10 @@ function localFileToServer(server, data) {
 //服务器进行解压文件
 function ServerTarFile(server, fileName) {
     return new Promise((resolve, reject) => {
+        const cmd = `tar -xf ${getValue('txtProjectServerPath')}/${fileName} -C ${getValue('txtProjectServerPath')}`;
+        console.log(cmd);
         ssh.Exec(server
-            , `tar -xf ${getValue('txtProjectServerPath')}/${fileName} -C ${getValue('txtProjectServerPath')}`
+            , cmd
             , function (code, signal) {
                 if (code === 0) {
                     resolve('解压成功！');
@@ -167,8 +168,10 @@ function ServerTarFile(server, fileName) {
 //创建镜像
 function BuildImages(server, version) {
     return new Promise((resolve, reject) => {
+        const cmd = `sudo docker build --no-cache --rm -t ${getValue('txtProjectName').toLowerCase()}:${version} -f ${getValue('txtProjectServerPath')}/${getValue('txtProjectName')}/Dockerfile ${getValue('txtProjectServerPath')}/${getValue('txtProjectName')}/`;
+        console.log(cmd);
         ssh.Exec(server
-            , `sudo docker build --no-cache --rm -t ${getValue('txtProjectName').toLowerCase()}:${version} -f ${getValue('txtProjectServerPath')}/${getValue('txtProjectName')}/Dockerfile ${getValue('txtProjectServerPath')}/${getValue('txtProjectName')}/`
+            , cmd
             , function (code, signal) {
                 if (code > 0) {
                     reject("创建镜像失败！");
@@ -182,8 +185,10 @@ function BuildImages(server, version) {
 //停止容器
 function StopContainer(server) {
     return new Promise((resolve, reject) => {
+        const cmd = `sudo docker rm -f ${getValue('txtProjectName').toLowerCase()}`;
+        console.log(cmd);
         ssh.Exec(server
-            , `sudo docker rm -f ${getValue('txtProjectName').toLowerCase()}`
+            , cmd
             , function (code, signal) {
                 resolve('停止容器成功！')
             })
@@ -193,8 +198,10 @@ function StopContainer(server) {
 //创建容器
 function CreateContainer(server, version) {
     return new Promise((resolve) => {
+        const cmd = `sudo docker run --name  ${getValue('txtProjectName').toLowerCase()}  -d --restart=always -p ${getValue('txtPort')} ${getValue('txtVolume')} ${getValue('txtProjectName').toLowerCase()}:${version}`;
+        console.log(cmd);
         ssh.Exec(server
-            , `sudo docker run --name  ${getValue('txtProjectName').toLowerCase()}  -d --restart=always -p ${getValue('txtPort')} -v ${getValue('txtVolume')} ${getValue('txtProjectName').toLowerCase()}:${version}`
+            , cmd
             , function (code, signal) {
                 resolve('创建容器成功！')
             });
@@ -205,8 +212,13 @@ function CreateContainer(server, version) {
 function DeleteImages(server) {
     return new Promise((resolve) => {
             const lastVersion = db.getLastDeployVersion(document.getElementById('drpProjects').value);
-            console.log(`docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "${lastVersion}" | awk  '{print $3}')`);
-            ssh.Exec(server, `docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "${lastVersion}" | awk  '{print $3}')`
+            if(lastVersion===undefined || lastVersion===""){
+                resolve('没有容器！');
+                return;
+            }
+            const cmd = `docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "${lastVersion}" | awk  '{print $3}')`;
+            console.log(cmd);
+            ssh.Exec(server, cmd
                 , function (code, signal) {
                     resolve('删除之前的镜像成功！');
                 });
@@ -259,6 +271,7 @@ document.getElementById("btnDockerDeploy").onclick = () => {
         })
         .then((data) => {
             layer.msg(data+'开始创建容器！');
+            console.log('create');
             return CreateContainer(server, versionname);
         })
         .then((data) => {
@@ -270,11 +283,19 @@ document.getElementById("btnDockerDeploy").onclick = () => {
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Release');
-            layer.alert('发布完成！');
+            //layer.alert('发布完成！');
+            new Notification("发布完成!",  {
+                title: "发布完成!",
+                body: "发布完成!"
+            });
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
-            layer.alert("发布失败");
+            console.log(data);
+            new Notification("发布失败!",  {
+                title: "发布失败!",
+                body: "发布失败!"
+            });
         })
 };
 
@@ -288,21 +309,31 @@ document.getElementById('btnFileDeploy').onclick = () => {
             return localCompressing();
         })
         .then((data) => {
-            layer.msg("压缩成功！开始上传文件！");
+            layer.msg("压缩成功！");
+            layer.msg("开始上传文件！");
             return localFileToServer(server, data);
         })
         .then((data) => {
-            layer.msg('上传成功！开始解压！');
+            layer.msg('上传成功！');
+            layer.msg('开始解压！');
             filename = data;
             versionname = data.replace('.tgz', '');
             return ServerTarFile(server, filename);
         })
         .then(data=>{
-            layer.alert('发布完成！');
+            new Notification("成功",  {
+                title: "成功",
+                body: "发布成功!"
+            });
+            fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
-            layer.alert("发布失败");
+            console.log(data);
+            new Notification("发布失败!",  {
+                title: "发布失败!",
+                body: "发布失败!"
+            });
         })
 };
 
@@ -404,9 +435,59 @@ document.getElementById("btnPublish").onclick = () => {
     workerProcess.on('close', function (code) {
         console.log('public result=>' + code);
         if (code > 0) {
-            layer.alert("项目发布失败，请解决问题后重试！");
+            //layer.alert("");
+            new Notification("失败!",  {
+                title: "失败!",
+                body: "项目发布失败，请解决问题后重试！"
+            });
         } else {
-            layer.msg("发布成功！");
+            new Notification("发布成功!",  {
+                title: "发布成功!",
+                body: "发布成功!"
+            });
         }
     })
+};
+
+//删除容器
+function DeleteContainer(server,container){
+    return new Promise((resolve) => {
+        const cmd = `docker rm -f $(docker ps | grep ${container} |  awk  '{print $1}')`
+        console.log(cmd);
+        ssh.Exec(server
+            , cmd
+            , function (code, signal) {
+                resolve('删除容器！')
+            });
+    });
+}
+//删除镜像
+function DeleteImages(server,container){
+    return new Promise((resolve) => {
+        const cmd = `docker rmi -f $(docker images | grep ${container} |  awk  '{print $3}')`
+        console.log(cmd);
+        ssh.Exec(server
+            , cmd
+            , function (code, signal) {
+                resolve('删除容器！')
+            });
+    });
+}
+
+document.getElementById("btnDeleteContainer").onclick = () =>{
+    const server = getServer();
+    DeleteContainer(server, getValue('txtProjectName').toLowerCase()).then(()=>{
+        layer.alert('已删除！');
+    }).catch(data=>{
+        layer.alert('操作失败！');
+    });
+};
+
+document.getElementById("btnDeleteImages").onclick = () =>{
+    const server = getServer();
+    DeleteImages(server, getValue('txtProjectName').toLowerCase()).then(()=>{
+        layer.alert('已删除！');
+    }).catch(data=>{
+        layer.alert('操作失败！');
+    });
 };

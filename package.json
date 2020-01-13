@@ -32,20 +32,20 @@
   "author": "Lucifer",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^5.0.6",
-    "electron-builder": "^20.43.0"
+    "electron": "^7.1.7",
+    "electron-builder": "^22.2.0"
   },
   "dependencies": {
-    "async": "^3.0.1",
-    "compressing": "^1.4.0",
+    "async": "^3.1.0",
+    "compressing": "^1.5.0",
     "crypto": "^1.0.1",
     "fstream": "^1.0.12",
     "layui-src": "^2.5.4",
     "lowdb": "^1.0.0",
-    "node-ssh": "^6.0.0",
+    "node-ssh": "^7.0.0",
     "node-uuid": "^1.4.8",
-    "ssh2": "^0.8.4",
-    "tar": "^4.4.10",
+    "ssh2": "^0.8.7",
+    "tar": "^5.0.5",
     "zip-local": "^0.3.4",
     "zlib": "^1.0.5"
   }

@@ -1,9 +1,9 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow,dialog} = require('electron')
+const {app, BrowserWindow,dialog,Tray} = require('electron');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
 
 function createWindow () {
   // Create the browser window.
@@ -27,7 +27,7 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
-  })
+  });
 }
 
 // This method will be called when Electron has finished
@@ -47,13 +47,14 @@ app.on('activate', function () {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow()
-})
+});
 //建立与页面之间的通信
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('asynchronous-message', function(event, arg) {
     dialog.showOpenDialog(mainWindow,{
       properties: ['openFile', 'openDirectory', 'multiSelections'],
       filters: [
+        { name: 'Vs Csproj', extensions: ['csproj'] },
         { name: 'Vs Project', extensions: ['sln'] },
         { name: 'All Files', extensions: ['*'] }
       ]
@@ -61,3 +62,8 @@ ipcMain.on('asynchronous-message', function(event, arg) {
       event.sender.send('asynchronous-reply', [arg,res]);
     })
 });
+
+// ipcMain.on('showMessage', function(event, arg) {
+//   let tray = new Tray("./images/deploy.png");
+//   tray.displayBalloon({title:'123',icon:"./images/deploy.png",context:'123'});
+// });

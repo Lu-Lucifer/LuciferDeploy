@@ -1,11 +1,9 @@
 "use strict"
-var ssh2 = require("ssh2");
 var util=require("util")
 var events=require("events");
 var Client = require("ssh2").Client;
 var fs = require("fs");
 var path = require('path');
-var async = require('async');
  
  
 /**
@@ -136,6 +134,7 @@ function UploadFile(server, localPath, remotePath , then){
 			if(err!==undefined){
 				then(err,0);
 			}else{
+
 				sftp.fastPut(localPath, remotePath, function(err, result){
 					conn.end();
 					then(err, 1);
