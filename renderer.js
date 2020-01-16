@@ -284,16 +284,16 @@ document.getElementById("btnDockerDeploy").onclick = () => {
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Release');
             //layer.alert('发布完成！');
-            new Notification("发布完成!",  {
-                title: "发布完成!",
+            new Notification("Docker发布",  {
+                title: "LuciferDeploy",
                 body: "发布完成!"
             });
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
             console.log(data);
-            new Notification("发布失败!",  {
-                title: "发布失败!",
+            new Notification("Docker发布",  {
+                title: "LuciferDeploy",
                 body: "发布失败!"
             });
         })
@@ -321,7 +321,7 @@ document.getElementById('btnFileDeploy').onclick = () => {
             return ServerTarFile(server, filename);
         })
         .then(data=>{
-            new Notification("成功",  {
+            new Notification("文件发布",  {
                 title: "成功",
                 body: "发布成功!"
             });
@@ -330,7 +330,7 @@ document.getElementById('btnFileDeploy').onclick = () => {
         })
         .catch((data) => {
             console.log(data);
-            new Notification("发布失败!",  {
+            new Notification("文件发布",  {
                 title: "发布失败!",
                 body: "发布失败!"
             });
@@ -436,12 +436,12 @@ document.getElementById("btnPublish").onclick = () => {
         console.log('public result=>' + code);
         if (code > 0) {
             //layer.alert("");
-            new Notification("失败!",  {
+            new Notification("项目生成",  {
                 title: "失败!",
                 body: "项目发布失败，请解决问题后重试！"
             });
         } else {
-            new Notification("发布成功!",  {
+            new Notification("项目生成",  {
                 title: "发布成功!",
                 body: "发布成功!"
             });
