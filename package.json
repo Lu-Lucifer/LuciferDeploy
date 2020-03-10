@@ -6,8 +6,8 @@
   "scripts": {
     "clean": "yarn autoclean -F",
     "start": "electron .",
-    "build": "build -m dmg",
-    "build-win": "build -w exe"
+    "build": "electron-builder --mac --x64",
+    "build-win": "electron-builder --win --x64"
   },
   "build": {
     "appId": "lucifer",
@@ -23,7 +23,8 @@
       "images"
     ],
     "mac": {
-      "icon": "./images/icon.icns"
+      "icon": "./images/icon.icns",
+      "target": ["dmg"]
     },
     "asar": true,
     "compression": "maximum"
@@ -32,8 +33,8 @@
   "author": "Lucifer",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^7.1.7",
-    "electron-builder": "^22.2.0"
+    "electron": "^8.0.0",
+    "electron-builder": "^22.3.2"
   },
   "dependencies": {
     "async": "^3.1.0",
