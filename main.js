@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow,dialog,Tray} = require('electron');
+const {app, BrowserWindow,dialog,Tray,ipcMain} = require('electron');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -49,18 +49,40 @@ app.on('activate', function () {
   if (mainWindow === null) createWindow()
 });
 //建立与页面之间的通信
-const ipcMain = require('electron').ipcMain;
+
 ipcMain.on('asynchronous-message', function(event, arg) {
-    dialog.showOpenDialog(mainWindow,{
-      properties: ['openFile', 'openDirectory', 'multiSelections'],
-      filters: [
-        { name: 'Vs Csproj', extensions: ['csproj'] },
-        { name: 'Vs Project', extensions: ['sln'] },
-        { name: 'All Files', extensions: ['*'] }
-      ]
-    },function(res){
-      event.sender.send('asynchronous-reply', [arg,res]);
-    })
+  //   const file =dialog.showOpenDialog(mainWindow,{
+  //     properties: ['openFile', 'openDirectory', 'multiSelections'],
+  //     filters: [
+  //       { name: 'Vs Csproj', extensions: ['csproj'] },
+  //       { name: 'Vs Project', extensions: ['sln'] },
+  //       { name: 'All Files', extensions: ['*'] }
+  //     ]
+  //   });
+  //   console.log(file);
+  // if(file){
+  //   console.log(file[0])
+  // }
+
+  dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile', 'openDirectory', 'multiSelections'],
+    filters: [
+      { name: '.net core', extensions: ['sln', 'csproj'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  }).then(result => {
+    if(result.canceled===false && result.filePaths.length>0){
+      event.sender.send('asynchronous-reply', [arg,result.filePaths]);
+    }
+    //console.log(result.canceled)
+    //console.log(result.filePaths)
+  }).catch(err => {
+    console.log(err)
+  })
+  // function(res){
+  //   console.log(res);
+  //   event.sender.send('asynchronous-reply', [arg,res]);
+  // }
 });
 
 // ipcMain.on('showMessage', function(event, arg) {

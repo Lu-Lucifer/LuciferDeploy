@@ -408,6 +408,7 @@ document.getElementById('btnSelectPackPath').onclick = () => {
 //监听主线程上面传回来的选择路径的信息
 function listenMessage() {
     ipcRenderer.on('asynchronous-reply', function (event, arg) {
+        console.log(arg);
         document.getElementById(arg[0]).value = arg[1];
     });
 }
