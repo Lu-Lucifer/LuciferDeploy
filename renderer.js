@@ -198,7 +198,11 @@ function StopContainer(server) {
 //创建容器
 function CreateContainer(server, version) {
     return new Promise((resolve) => {
-        const cmd = `sudo docker run --name  ${getValue('txtProjectName').toLowerCase()}  -d --restart=always -p ${getValue('txtPort')} ${getValue('txtVolume')} ${getValue('txtProjectName').toLowerCase()}:${version}`;
+        var port = getValue('txtPort');
+        if(port.length>2){
+            port=" -p "+port;
+        }
+        const cmd = `sudo docker run --name=${getValue('txtProjectName').toLowerCase()}  -d --restart=always ${port} ${getValue('txtVolume')} ${getValue('txtProjectName').toLowerCase()}:${version}`;
         console.log(cmd);
         ssh.Exec(server
             , cmd
@@ -279,6 +283,70 @@ document.getElementById("btnDockerDeploy").onclick = () => {
             return DeleteImages(server);
         })
         .then((data)=>{
+            db.Update("Projects",document.getElementById('drpProjects').value, {deployVersion:versionname});
+            fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
+            fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
+            fs.IfNotExistsDelete(getValue('txtPackPath')+'/Release');
+            //layer.alert('发布完成！');
+            new Notification("Docker发布",  {
+                title: "LuciferDeploy",
+                body: "发布完成!"
+            });
+            return DoShell(server,getValue('txtAfterShell'))
+        })
+        .catch((data) => {
+            console.log(data);
+            new Notification("Docker发布",  {
+                title: "LuciferDeploy",
+                body: "发布失败!"
+            });
+        })
+};
+
+//创建镜像，但是不删除原来的镜像，不创建容器
+document.getElementById("btnCreateImages").onclick = () => {
+    const server = getServer();
+    var filename, versionname;
+
+    DoShell(server,getValue('txtBeforeShell'))
+        .then((data)=>{
+            return ProjectsPublish();
+        })
+        .then((data)=>{
+            layer.msg('开始压缩！');
+            return localCompressing();
+        })
+        .then((data) => {
+            layer.msg("压缩成功！");
+            layer.msg("开始上传文件！");
+            return localFileToServer(server, data);
+        })
+        .then((data) => {
+            layer.msg('上传成功！');
+            layer.msg('开始解压！');
+            filename = data;
+            versionname = data.replace('.tgz', '');
+            return ServerTarFile(server, filename);
+        })
+        .then((data) => {
+            layer.msg(data+'创建镜像开始！');
+            return BuildImages(server, versionname);
+        })
+        // .then((data) => {
+        //     layer.msg(data+'开始停止容器！');
+        //     return StopContainer(server);
+        // })
+        // .then((data) => {
+        //     layer.msg(data+'开始创建容器！');
+        //     console.log('create');
+        //     return CreateContainer(server, versionname);
+        // })
+        // .then((data) => {
+        //     layer.msg(data+'开始删除之前的容器！');
+        //     return DeleteImages(server);
+        // })
+        .then((data)=>{
+            layer.msg(data);
             db.Update("Projects",document.getElementById('drpProjects').value, {deployVersion:versionname});
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
@@ -408,7 +476,6 @@ document.getElementById('btnSelectPackPath').onclick = () => {
 //监听主线程上面传回来的选择路径的信息
 function listenMessage() {
     ipcRenderer.on('asynchronous-reply', function (event, arg) {
-        console.log(arg);
         document.getElementById(arg[0]).value = arg[1];
     });
 }
@@ -449,6 +516,39 @@ document.getElementById("btnPublish").onclick = () => {
         }
     })
 };
+
+//生成发布后的项目
+function ProjectsPublish(){
+    return new Promise((resolve) => {
+        // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
+        let cmdStr = ` /usr/local/share/dotnet/dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
+        console.log(cmdStr);
+        //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
+
+        let workerProcess = exec(cmdStr,{});
+        // 不受child_process默认的缓冲区大小的使用方法，没参数也要写上{}：workerProcess = exec(cmdStr, {})
+
+        // 打印正常的后台可执行程序输出
+        workerProcess.stdout.on('data', function (data) {
+            console.log('stdout: ' + data);
+        });
+
+        // 打印错误的后台可执行程序输出
+        workerProcess.stderr.on('data', function (data) {
+            console.log('stderr: ' + data);
+        });
+
+        // 退出之后的输出 1失败，0成功
+        workerProcess.on('close', function (code) {
+            console.log('public result=>' + code);
+            if (code > 0) {
+                reject("publish project fail");
+            } else {
+                resolve("publish project success");
+            }
+        });
+    });
+}
 
 //删除容器
 function DeleteContainer(server,container){
