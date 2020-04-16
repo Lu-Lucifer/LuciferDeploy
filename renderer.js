@@ -250,6 +250,10 @@ document.getElementById("btnDockerDeploy").onclick = () => {
 
     DoShell(server,getValue('txtBeforeShell'))
         .then((data)=>{
+            return ProjectsPublish();
+        })
+        .then((data)=>{
+            layer.msg(data);
             layer.msg('开始压缩！');
             return localCompressing();
         })
@@ -295,70 +299,7 @@ document.getElementById("btnDockerDeploy").onclick = () => {
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
-            console.log(data);
-            new Notification("Docker发布",  {
-                title: "LuciferDeploy",
-                body: "发布失败!"
-            });
-        })
-};
-
-//创建镜像，但是不删除原来的镜像，不创建容器
-document.getElementById("btnCreateImages").onclick = () => {
-    const server = getServer();
-    var filename, versionname;
-
-    DoShell(server,getValue('txtBeforeShell'))
-        .then((data)=>{
-            return ProjectsPublish();
-        })
-        .then((data)=>{
-            layer.msg('开始压缩！');
-            return localCompressing();
-        })
-        .then((data) => {
-            layer.msg("压缩成功！");
-            layer.msg("开始上传文件！");
-            return localFileToServer(server, data);
-        })
-        .then((data) => {
-            layer.msg('上传成功！');
-            layer.msg('开始解压！');
-            filename = data;
-            versionname = data.replace('.tgz', '');
-            return ServerTarFile(server, filename);
-        })
-        .then((data) => {
-            layer.msg(data+'创建镜像开始！');
-            return BuildImages(server, versionname);
-        })
-        // .then((data) => {
-        //     layer.msg(data+'开始停止容器！');
-        //     return StopContainer(server);
-        // })
-        // .then((data) => {
-        //     layer.msg(data+'开始创建容器！');
-        //     console.log('create');
-        //     return CreateContainer(server, versionname);
-        // })
-        // .then((data) => {
-        //     layer.msg(data+'开始删除之前的容器！');
-        //     return DeleteImages(server);
-        // })
-        .then((data)=>{
             layer.msg(data);
-            db.Update("Projects",document.getElementById('drpProjects').value, {deployVersion:versionname});
-            fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
-            fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
-            fs.IfNotExistsDelete(getValue('txtPackPath')+'/Release');
-            //layer.alert('发布完成！');
-            new Notification("Docker发布",  {
-                title: "LuciferDeploy",
-                body: "发布完成!"
-            });
-            return DoShell(server,getValue('txtAfterShell'))
-        })
-        .catch((data) => {
             console.log(data);
             new Notification("Docker发布",  {
                 title: "LuciferDeploy",

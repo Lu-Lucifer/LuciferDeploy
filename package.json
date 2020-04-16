@@ -6,8 +6,8 @@
   "scripts": {
     "clean": "yarn autoclean -F",
     "start": "electron .",
-    "build": "electron-builder --mac --x64",
-    "build-win": "electron-builder --win --x64"
+    "build": "ELECTRON_MIRROR=https://npm.taobao.org/mirrors/electron/ electron-builder --mac --x64",
+    "build-win": "ELECTRON_MIRROR=https://npm.taobao.org/mirrors/electron/ electron-builder electron-builder --win --x64"
   },
   "build": {
     "appId": "lucifer",
@@ -24,7 +24,9 @@
     ],
     "mac": {
       "icon": "./images/icon.icns",
-      "target": ["dmg"]
+      "target": [
+        "dmg"
+      ]
     },
     "asar": true,
     "compression": "maximum"
@@ -33,7 +35,7 @@
   "author": "Lucifer",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^8.0.0",
+    "electron": "^8.2.1",
     "electron-builder": "^22.3.2"
   },
   "dependencies": {
