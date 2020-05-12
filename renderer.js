@@ -212,22 +212,23 @@ function CreateContainer(server, version) {
     });
 }
 
-//删除改项目之前创建的镜像
-function DeleteImages(server) {
-    return new Promise((resolve) => {
-            const lastVersion = db.getLastDeployVersion(document.getElementById('drpProjects').value);
-            if(lastVersion===undefined || lastVersion===""){
-                resolve('没有容器！');
-                return;
-            }
-            const cmd = `docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "${lastVersion}" | awk  '{print $3}')`;
-            console.log(cmd);
-            ssh.Exec(server, cmd
-                , function (code, signal) {
-                    resolve('删除之前的镜像成功！');
-                });
-    });
-}
+// //删除改项目之前创建的镜像
+// function DeleteImages(server) {
+//     return new Promise((resolve) => {
+//             // const lastVersion = db.getLastDeployVersion(document.getElementById('drpProjects').value);
+//             // if(lastVersion===undefined || lastVersion===""){
+//             //     resolve('没有容器！');
+//             //     return;
+//             // }
+//         //const cmd = `docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "${lastVersion}" | awk  '{print $3}')`;
+//         const cmd = `docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "" | awk  '{print $3}')`;
+//             console.log(cmd);
+//             ssh.Exec(server, cmd
+//                 , function (code, signal) {
+//                     resolve('删除之前的镜像成功！');
+//                 });
+//     });
+// }
 
 //执行命令shell
 function DoShell(server,cmd) {
@@ -284,7 +285,7 @@ document.getElementById("btnDockerDeploy").onclick = () => {
         })
         .then((data) => {
             layer.msg(data+'开始删除之前的容器！');
-            return DeleteImages(server);
+            return DeleteImages(server,getValue('txtProjectName').toLowerCase());
         })
         .then((data)=>{
             db.Update("Projects",document.getElementById('drpProjects').value, {deployVersion:versionname});
