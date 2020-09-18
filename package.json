@@ -39,17 +39,17 @@
     "electron-builder": "^22.3.2"
   },
   "dependencies": {
-    "electron": "^8.2.1",
-    "electron-builder": "^22.3.2",
     "async": "^3.1.0",
     "compressing": "^1.5.0",
     "crypto": "^1.0.1",
+    "electron": "^8.2.1",
+    "electron-builder": "^22.3.2",
     "fstream": "^1.0.12",
     "layui-src": "^2.5.4",
     "lowdb": "^1.0.0",
     "node-ssh": "^7.0.0",
     "node-uuid": "^1.4.8",
-    "ssh2": "^0.8.7",
+    "ssh2": "^0.8.9",
     "tar": "^5.0.5",
     "zip-local": "^0.3.4",
     "zlib": "^1.0.5"

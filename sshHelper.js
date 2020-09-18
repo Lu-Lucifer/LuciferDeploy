@@ -80,7 +80,7 @@ function Exec(server,cmd,then){
 				console.log(err.toString());
 				//console.log('STDOUT: ' + data);
 			}).stderr.on('data', function(data) {
-				//console.log('STDERR: ' + data);
+				console.log('STDERR: ' + data);
 			});
 
 		});
