@@ -42,8 +42,6 @@
     "async": "^3.1.0",
     "compressing": "^1.5.0",
     "crypto": "^1.0.1",
-    "electron": "^8.2.1",
-    "electron-builder": "^22.3.2",
     "fstream": "^1.0.12",
     "layui-src": "^2.5.4",
     "lowdb": "^1.0.0",
