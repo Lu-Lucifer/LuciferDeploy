@@ -5,8 +5,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const guid = require('./guidHelper.js');
 const fs1 = require('fs');
 const path = require('path');
-const {remote} = require('electron');
-const DB_DIR = path.join(getUserHome(), `.${remote.app.name}`);
+const DB_DIR = path.join(getUserHome(), `.LuciferDeploy`);
 try {
     fs1.accessSync(DB_DIR);
 } catch (err) {
