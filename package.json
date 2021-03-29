@@ -6,8 +6,9 @@
   "scripts": {
     "clean": "yarn autoclean -F",
     "start": "electron .",
-    "build": "ELECTRON_MIRROR=https://npm.taobao.org/mirrors/electron/ electron-builder --mac --x64",
-    "build-win": "ELECTRON_MIRROR=https://npm.taobao.org/mirrors/electron/ electron-builder electron-builder --win --x64"
+    "build-mac-x64": "electron-builder --mac --x64",
+    "build-mac-m1": "electron-builder --mac --arm64",
+    "build-win": "electron-builder electron-builder --win --x64"
   },
   "build": {
     "appId": "lucifer",
