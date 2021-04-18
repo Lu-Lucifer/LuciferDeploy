@@ -4,6 +4,11 @@ const compressing = require('./compressingHelper.js');
 const fs = require('./fsHelper.js');
 const ipcRenderer = require('electron').ipcRenderer;
 const exec = require('child_process').exec;
+const os = require('os');
+const homeDir = os.homedir();
+const tool = require('./tools.js');
+const { spawn } = require('child_process');
+
 var layer;//layui中的layer
 
 function setValue(control, value) {
@@ -91,7 +96,7 @@ function getServer() {
             host: getValue('txtIp'),
             port: 22,
             username: getValue('txtUserName'),
-            privateKey: require('fs').readFileSync('/Users/lucifer/.ssh/id_rsa')
+            privateKey: require('fs').readFileSync(homeDir+'/.ssh/id_rsa')
         }
     } else {
         server = {
@@ -145,6 +150,62 @@ function localFileToServer(server, data) {
                 }
                 resolve(fileName);
             })
+    })
+}
+
+//通过scp上传文件夹到服务器上
+function scpLocalFileToServer(server, data) {
+    return new Promise((resolve, reject) => {
+        const localPath = getValue('txtPackPath')+'/'+getValue('txtProjectName');
+            // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
+            let cmdStr = ` scp -r ${localPath} ${getValue('txtUserName')}@${getValue('txtIp')}:${getValue('txtProjectServerPath')} `;
+            console.log(cmdStr);
+        //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
+
+            // let workerProcess = exec(cmdStr,{});
+            // // 不受child_process默认的缓冲区大小的使用方法，没参数也要写上{}：workerProcess = exec(cmdStr, {})
+
+            // // 打印正常的后台可执行程序输出
+            // workerProcess.stdout.on('data', function (data) {
+            //     console.log('stdout: ' + data);
+            // });
+
+            // // 打印错误的后台可执行程序输出
+            // workerProcess.stderr.on('data', function (data) {
+            //     console.log('stderr: ' + data);
+            // });
+
+            // // 退出之后的输出 1失败，0成功
+            // workerProcess.on('close', function (code) {
+            //     console.log('scp result=>' + code);
+            //     if (code > 0) {
+            //         resolve('上传成功！');
+            //     } else {
+            //         reject('上传失败！');
+            //     }
+            // })
+            const ls = spawn(cmdStr, {
+                encoding: 'utf8',
+                cwd: process.cwd(), // 执行命令路径
+                shell: true, // 使用shell命令
+              })
+              
+              // 监听标准输出
+              ls.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+              });
+              
+              // 监听标准错误
+              ls.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+                reject('上传失败！');
+              });
+              
+              // 子进程关闭事件
+              ls.on('close', (code) => {
+                console.log(`子进程退出，退出码 ${code}`);
+                resolve('上传成功！');
+              });
     })
 }
 
@@ -248,28 +309,32 @@ function DoShell(server,cmd) {
 document.getElementById("btnDockerDeploy").onclick = () => {
     const server = getServer();
     var filename, versionname;
-
+    versionname =  tool.DateFormat('yyyyMMddhhmmss')
     DoShell(server,getValue('txtBeforeShell'))
         .then((data)=>{
             return ProjectsPublish();
         })
-        .then((data)=>{
-            layer.msg(data);
-            layer.msg('开始压缩！');
-            return localCompressing();
-        })
+        // .then((data)=>{
+        //     layer.msg(data);
+        //     layer.msg('开始压缩！');
+        //     return localCompressing();
+        // })
+        // .then((data) => {
+        //     layer.msg("压缩成功！");
+        //     layer.msg("开始上传文件！");
+        //     return localFileToServer(server, data);
+        // })
         .then((data) => {
-            layer.msg("压缩成功！");
-            layer.msg("开始上传文件！");
-            return localFileToServer(server, data);
+                layer.msg("开始上传文件！");
+                return scpLocalFileToServer(server, data);
         })
-        .then((data) => {
-            layer.msg('上传成功！');
-            layer.msg('开始解压！');
-            filename = data;
-            versionname = data.replace('.tgz', '');
-            return ServerTarFile(server, filename);
-        })
+        // .then((data) => {
+        //     layer.msg('上传成功！');
+        //     layer.msg('开始解压！');
+        //     filename = data;
+        //     versionname = data.replace('.tgz', '');
+        //     return ServerTarFile(server, filename);
+        // })
         .then((data) => {
             layer.msg(data+'创建镜像开始！');
             return BuildImages(server, versionname);
@@ -424,7 +489,7 @@ function listenMessage() {
 
 document.getElementById("btnPublish").onclick = () => {
     // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
-    let cmdStr = ` /usr/local/share/dotnet/dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
+    let cmdStr = ` dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
     console.log(cmdStr);
    //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
 
@@ -463,7 +528,7 @@ document.getElementById("btnPublish").onclick = () => {
 function ProjectsPublish(){
     return new Promise((resolve) => {
         // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
-        let cmdStr = ` /usr/local/share/dotnet/dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
+        let cmdStr = ` dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
         console.log(cmdStr);
         //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
 
