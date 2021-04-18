@@ -1,3 +1,6 @@
 publish/builder-effective-config.yaml
 publish/LuciferDeploy-2.0.0.dmg
 publish/LuciferDeploy-2.0.0.dmg.blockmap
+node_modules
+.vscode
+yarn.lock
