@@ -29,6 +29,9 @@
         "dmg"
       ]
     },
+    "win": {
+      "icon": "./images/icon.ico"
+    },
     "asar": true,
     "compression": "maximum"
   },
