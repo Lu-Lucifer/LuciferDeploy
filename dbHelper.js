@@ -18,8 +18,8 @@ function getUserHome() {
     return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 // const adapter = new FileSync('db.json', {
-//     serialize: (data) => crypt.encrypt('aes192',"lucifer666",JSON.stringify(data)),
-//     deserialize: (data) => JSON.parse(crypt.decrypt('aes192',"lucifer666",data))
+//     serialize: (data) => crypt.encrypt('aes192',"miyao",JSON.stringify(data)),
+//     deserialize: (data) => JSON.parse(crypt.decrypt('aes192',"miyao",data))
 // })
 
 let adapter = new FileSync(path.join(DB_DIR,'db.json'));
@@ -39,6 +39,12 @@ exports.Insert = (ip, username, userpwd, description) => {
         .push({id: id, ip: ip, username: username, userpwd: userpwd, description: description})
         .write()
     return id;
+}
+
+exports.Delete = (table,id) => {
+    db.get(table)
+        .remove({ id: id })
+        .write();
 }
 
 exports.Update = (table,id,data)=>{
@@ -110,8 +116,6 @@ exports.searchProjects = function (id) {
     return db.get('Projects')
         .value()
 }
-
-
 
 function add(array, b) {
     array.unshift(b);

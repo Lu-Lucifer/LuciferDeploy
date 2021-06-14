@@ -23,10 +23,6 @@
       </style>
   </head>
   <body>
-
-    <blockquote class="layui-elem-quote layui-text">
-        注意：第一次发布需要在服务器创建相应的文件夹
-    </blockquote>
  <br>
    <fieldset class="layui-elem-field site-demo-button">
        <legend>服务器</legend>
@@ -68,9 +64,10 @@
  
            <div class="layui-form-item">
                <label class="layui-form-label"></label>
+               <button type="button" id="btnConnection" class="layui-btn layui-btn-normal">连接测试</button>
                <button type="button" id="btnAddConfig" class="layui-btn layui-btn-normal">新增配置</button>
                <button type="button" id="btnEditConfig" class="layui-btn layui-btn-normal">修改配置</button>
-               <button type="button" id="btnConnection" class="layui-btn layui-btn-normal">连接</button>
+               <button type="button" id="btnDeleteConfig" class="layui-btn layui-btn-normal">删除配置</button>
            </div>
        </form>
    </fieldset>
@@ -117,19 +114,12 @@
            </div>
  
            <div class="layui-form-item">
-               <label class="layui-form-label">端口映射</label>
+               <label class="layui-form-label">容器运行参数</label>
                <div class="layui-input-block">
-                   <input id="txtPort" type="text"  lay-verify="required" lay-reqtext="端口映射是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+                   <input id="txtDockerParams" type="text"  lay-verify="required" lay-reqtext="Docker容器参数是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
                </div>
            </div>
- 
-           <div class="layui-form-item">
-               <label class="layui-form-label">容器挂载</label>
-               <div class="layui-input-block">
-                   <input id="txtVolume" type="text"  lay-verify="required" lay-reqtext="容器挂载是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
-               </div>
-           </div>
- 
+
            <div class="layui-form-item">
                <label class="layui-form-label">发布前执行命令</label>
                <div class="layui-input-block">
@@ -155,8 +145,8 @@
                <label class="layui-form-label"></label>
                <button type="button" id="btnAddProjectConfig" class="layui-btn layui-btn-normal">新增配置</button>
                <button type="button" id="btnEditProjectConfig" class="layui-btn layui-btn-normal">修改配置</button>
+               <button type="button" id="btnDeleteProjectConfig" class="layui-btn layui-btn-normal">删除配置</button>
                <button type="button" id="btnDockerDeploy" class="layui-btn layui-btn-normal">Docker发布</button>
- <!--              <button type="button" id="btnCreateImages" class="layui-btn layui-btn-normal">创建Docker镜像</button>-->
                <button type="button" id="btnFileDeploy" class="layui-btn layui-btn-normal">文件发布</button>
                <button type="button" id="btnDeleteImages" class="layui-btn layui-btn-normal">删除镜像</button>
                <button type="button" id="btnDeleteContainer" class="layui-btn layui-btn-normal">删除容器</button>
@@ -174,7 +164,7 @@
         layui.use(['form','upload'], function(){
             var form = layui.form
                 ,layer = layui.layer;
-            main.createLayer(layer);
+            main.createLayer(layer,form);
             //createLayer(layer);
 
             form.on('select(server)', function(data){

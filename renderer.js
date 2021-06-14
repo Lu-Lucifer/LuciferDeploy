@@ -10,6 +10,7 @@ const tool = require('./tools.js');
 const { spawn } = require('child_process');
 
 var layer;//layui中的layer
+var form;
 
 function setValue(control, value) {
     document.getElementById(control).value = value;
@@ -19,8 +20,9 @@ function getValue(control) {
     return document.getElementById(control).value;
 }
 
-exports.createLayer = (lay) => {
+exports.createLayer = (lay,layform) => {
     layer = lay;
+    form = layform;
 };
 
 //初始化
@@ -72,6 +74,13 @@ exports.setServerInfo = (id) => {
     setValue('txtDescription', entity.description);
 };
 
+function clearServerInfo(){
+    setValue('txtIp', '');
+    setValue('txtUserName', '');
+    setValue('txtPwd', '');
+    setValue('txtDescription', '');
+};
+
 //设置项目信息的值
 exports.setProjectInfo = (id) => {
     let data = db.searchProjects(id);
@@ -81,11 +90,22 @@ exports.setProjectInfo = (id) => {
     setValue('txtProjectPath', entity.projectPath);
     setValue('txtPackPath', entity.projectPackPath);
     setValue('txtProjectServerPath', entity.projectServerPath);
-    setValue('txtPort', entity.projectPort);
-    setValue('txtVolume', entity.projectVolumes);
+    setValue('txtDockerParams', entity.projectDockerParams);
     setValue('txtBeforeShell', entity.beforeShell);
     setValue('txtAfterShell', entity.afterShell);
     setValue('txtProjectDescription', entity.description);
+};
+
+
+function clearProjectInfo(){
+    setValue('txtProjectName', '');
+    setValue('txtProjectPath', '');
+    setValue('txtPackPath', '');
+    setValue('txtProjectServerPath', '');
+    setValue('txtDockerParams', '');
+    setValue('txtBeforeShell', '');
+    setValue('txtAfterShell', '');
+    setValue('txtProjectDescription', '');
 };
 
 //获取连接服务器server
@@ -109,7 +129,7 @@ function getServer() {
     return server;
 }
 
-//连接服务器
+//连接测试 服务器
 document.getElementById("btnConnection").onclick = () => {
     //const description = document.getElementById("txtDescription").value;
     let server = getServer();
@@ -122,36 +142,41 @@ document.getElementById("btnConnection").onclick = () => {
     })
 };
 
-//进行本地压缩
-function localCompressing() {
-    return new Promise((resolve, reject) => {
-        compressing.directoryToFile(
-            getValue('txtPackPath')+'/'+getValue('txtProjectName')
-            , getValue('txtPackPath')+"/Deploy", function (data, err) {
-                if (err === 0) {
-                    reject("压缩失败！");
-                    return;
-                }
-                resolve(data);
-            });
-    })
-}
+//新增配置到数据库中
+document.getElementById("btnAddConfig").onclick = () => {
+    const id = db.Insert(getValue('txtIp'), getValue('txtUserName'), getValue('txtPwd'), getValue('txtDescription'));
+    if (id.length > 0) {
+        initDrpListServer();
+        form.render('select');
+        layer.alert('数据已生效！');        
+    } else {
+        layer.alert('操作失败！');
+    }
+};
 
-//上传文件到服务器上面
-function localFileToServer(server, data) {
-    return new Promise((resolve, reject) => {
-        const fileName = data;
-        ssh.UploadFile(server, `${getValue('txtPackPath')}/Deploy/${data}`
-            , getValue('txtProjectServerPath') + '/' + data
-            , function (err, data) {
-                if (err !== undefined && data !== 1) {
-                    reject("上传文件失败！");
-                    return;
-                }
-                resolve(fileName);
-            })
-    })
-}
+//修改服务器参数的配置到数据库中
+document.getElementById("btnEditConfig").onclick = () => {
+    var id = document.getElementById("drpServer").value;
+    db.Update('Servers', id, {
+        ip: getValue('txtIp'),
+        username: getValue('txtUserName'),
+        userpwd: getValue('txtPwd'),
+        description: getValue('txtDescription')
+    });
+    initDrpListServer();
+    clearServerInfo();
+    form.render('select');
+    layer.alert('数据已生效！');    
+};
+
+//删除服务器配置
+document.getElementById("btnDeleteConfig").onclick = () => {
+    db.Delete('Servers',document.getElementById("drpServer").value);
+    initDrpListServer();
+    clearServerInfo();
+    form.render('select');
+    layer.alert('数据已生效！');    
+};
 
 //通过scp上传文件夹到服务器上
 function scpLocalFileToServer(server, data) {
@@ -259,11 +284,7 @@ function StopContainer(server) {
 //创建容器
 function CreateContainer(server, version) {
     return new Promise((resolve) => {
-        var port = getValue('txtPort');
-        if(port.length>2){
-            port=" -p "+port;
-        }
-        const cmd = `sudo docker run --name=${getValue('txtProjectName').toLowerCase()}  -d --restart=always ${port} ${getValue('txtVolume')} ${getValue('txtProjectName').toLowerCase()}:${version}`;
+        const cmd = `sudo docker run --name=${getValue('txtProjectName').toLowerCase()}  -d --restart=always ${getValue('txtDockerParams')} ${getValue('txtProjectName').toLowerCase()}:${version}`;
         console.log(cmd);
         ssh.Exec(server
             , cmd
@@ -314,27 +335,10 @@ document.getElementById("btnDockerDeploy").onclick = () => {
         .then((data)=>{
             return ProjectsPublish();
         })
-        // .then((data)=>{
-        //     layer.msg(data);
-        //     layer.msg('开始压缩！');
-        //     return localCompressing();
-        // })
-        // .then((data) => {
-        //     layer.msg("压缩成功！");
-        //     layer.msg("开始上传文件！");
-        //     return localFileToServer(server, data);
-        // })
         .then((data) => {
                 layer.msg("开始上传文件！");
                 return scpLocalFileToServer(server, data);
         })
-        // .then((data) => {
-        //     layer.msg('上传成功！');
-        //     layer.msg('开始解压！');
-        //     filename = data;
-        //     versionname = data.replace('.tgz', '');
-        //     return ServerTarFile(server, filename);
-        // })
         .then((data) => {
             layer.msg(data+'创建镜像开始！');
             return BuildImages(server, versionname);
@@ -357,7 +361,6 @@ document.getElementById("btnDockerDeploy").onclick = () => {
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Release');
-            //layer.alert('发布完成！');
             new Notification("Docker发布",  {
                 title: "LuciferDeploy",
                 body: "发布完成!"
@@ -379,28 +382,16 @@ document.getElementById('btnFileDeploy').onclick = () => {
     const server = getServer();
     var filename, versionname;
     DoShell(server,getValue('txtBeforeShell'))
-        .then((data)=>{
-            layer.msg('开始压缩！');
-            return localCompressing();
-        })
         .then((data) => {
-            layer.msg("压缩成功！");
             layer.msg("开始上传文件！");
-            return localFileToServer(server, data);
-        })
-        .then((data) => {
-            layer.msg('上传成功！');
-            layer.msg('开始解压！');
-            filename = data;
-            versionname = data.replace('.tgz', '');
-            return ServerTarFile(server, filename);
+            return scpLocalFileToServer(server, data);
         })
         .then(data=>{
             new Notification("文件发布",  {
                 title: "成功",
                 body: "发布成功!"
             });
-            fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
+            fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
@@ -412,27 +403,6 @@ document.getElementById('btnFileDeploy').onclick = () => {
         })
 };
 
-//新增配置到数据库中
-document.getElementById("btnAddConfig").onclick = () => {
-    const id = db.Insert(getValue('txtIp'), getValue('txtUserName'), getValue('txtPwd'), getValue('txtDescription'));
-    if (id.length > 0) {
-        layer.alert('数据已生效！');
-        drpAddSelect('drpList', id, getValue('txtIp'));
-    } else {
-        layer.alert('操作失败！');
-    }
-};
-
-//修改服务器参数的配置到数据库中
-document.getElementById("btnEditConfig").onclick = () => {
-    db.Update('Servers', document.getElementById("drpServer").value, {
-        ip: getValue('txtIp'),
-        username: getValue('txtUserName'),
-        userpwd: getValue('txtPwd'),
-        description: getValue('txtDescription')
-    });
-    layer.alert('数据已生效！');
-};
 
 //新增项目配置
 document.getElementById('btnAddProjectConfig').onclick = () => {
@@ -440,20 +410,21 @@ document.getElementById('btnAddProjectConfig').onclick = () => {
         , getValue('txtProjectPath')
         , getValue('txtPackPath')
         , getValue('txtProjectServerPath')
-        , getValue('txtPort')
-        , getValue('txtVolume')
+        , getValue('txtDockerParams')
         , getValue('txtBeforeShell')
         , getValue('txtAfterShell')
         , getValue('txtProjectDescription'));
     if (id.length > 0) {
         drpAddSelect('drpProjects', id, getValue('txtProjectName'));
+        initDrpListProjects();
+        form.render('select');
         layer.alert('数据已生效！');
     } else {
         layer.alert('操作失败！');
     }
 };
 
-//修改项目配置信息到数据库中
+//修改项目配置
 document.getElementById('btnEditProjectConfig').onclick = () => {
     db.Update('Projects', getValue('drpProjects'),
         {
@@ -461,12 +432,23 @@ document.getElementById('btnEditProjectConfig').onclick = () => {
             projectPath: getValue('txtProjectPath'),
             projectPackPath: getValue('txtPackPath'),
             projectServerPath: getValue('txtProjectServerPath'),
-            projectPort: getValue('txtPort'),
-            projectVolumes: getValue('txtVolume'),
+            projectDockerParams: getValue('txtDockerParams'),
             beforeShell: getValue('txtBeforeShell'),
             afterShell: getValue('txtAfterShell'),
             description: getValue('txtProjectDescription'),
-        })
+        });
+        initDrpListProjects();
+        clearProjectInfo();
+        form.render('select');
+    layer.alert('数据已生效！');
+}
+
+//删除项目配置
+document.getElementById('btnDeleteProjectConfig').onclick = () => {
+    db.Delete('Projects', getValue('drpProjects'));
+    initDrpListProjects();
+    clearProjectInfo();
+    form.render('select');
     layer.alert('数据已生效！');
 }
 
@@ -487,6 +469,7 @@ function listenMessage() {
     });
 }
 
+//项目生成
 document.getElementById("btnPublish").onclick = () => {
     // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
     let cmdStr = ` dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
