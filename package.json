@@ -1,6 +1,6 @@
 {
   "name": "deploy",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "陆霸霸的项目发布工具",
   "main": "main.js",
   "scripts": {
@@ -39,8 +39,8 @@
   "author": "Lucifer",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^12.0.2",
-    "electron-builder": "^22.10.5"
+    "electron": "^13.1.2",
+    "electron-builder": "^22.11.7"
   },
   "dependencies": {
     "async": "^3.1.0",
@@ -49,6 +49,6 @@
     "lowdb": "^1.0.0",
     "node-ssh": "^7.0.0",
     "node-uuid": "^1.4.8",
-    "ssh2": "^0.8.9"
+    "ssh2": "^1.1.0"
   }
 }

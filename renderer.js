@@ -1,6 +1,5 @@
 const db = require('./dbHelper.js');
 const ssh = require('./sshHelper.js');
-const compressing = require('./compressingHelper.js');
 const fs = require('./fsHelper.js');
 const ipcRenderer = require('electron').ipcRenderer;
 const exec = require('child_process').exec;
@@ -185,30 +184,6 @@ function scpLocalFileToServer(server, data) {
             // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
             let cmdStr = ` scp -r ${localPath} ${getValue('txtUserName')}@${getValue('txtIp')}:${getValue('txtProjectServerPath')} `;
             console.log(cmdStr);
-        //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
-
-            // let workerProcess = exec(cmdStr,{});
-            // // 不受child_process默认的缓冲区大小的使用方法，没参数也要写上{}：workerProcess = exec(cmdStr, {})
-
-            // // 打印正常的后台可执行程序输出
-            // workerProcess.stdout.on('data', function (data) {
-            //     console.log('stdout: ' + data);
-            // });
-
-            // // 打印错误的后台可执行程序输出
-            // workerProcess.stderr.on('data', function (data) {
-            //     console.log('stderr: ' + data);
-            // });
-
-            // // 退出之后的输出 1失败，0成功
-            // workerProcess.on('close', function (code) {
-            //     console.log('scp result=>' + code);
-            //     if (code > 0) {
-            //         resolve('上传成功！');
-            //     } else {
-            //         reject('上传失败！');
-            //     }
-            // })
             const ls = spawn(cmdStr, {
                 encoding: 'utf8',
                 cwd: process.cwd(), // 执行命令路径
@@ -293,24 +268,6 @@ function CreateContainer(server, version) {
             });
     });
 }
-
-// //删除改项目之前创建的镜像
-// function DeleteImages(server) {
-//     return new Promise((resolve) => {
-//             // const lastVersion = db.getLastDeployVersion(document.getElementById('drpProjects').value);
-//             // if(lastVersion===undefined || lastVersion===""){
-//             //     resolve('没有容器！');
-//             //     return;
-//             // }
-//         //const cmd = `docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "${lastVersion}" | awk  '{print $3}')`;
-//         const cmd = `docker rmi $(docker images | grep ${getValue('txtProjectName').toLowerCase()} | grep  "" | awk  '{print $3}')`;
-//             console.log(cmd);
-//             ssh.Exec(server, cmd
-//                 , function (code, signal) {
-//                     resolve('删除之前的镜像成功！');
-//                 });
-//     });
-// }
 
 //执行命令shell
 function DoShell(server,cmd) {
@@ -472,7 +429,7 @@ function listenMessage() {
 //项目生成
 document.getElementById("btnPublish").onclick = () => {
     // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
-    let cmdStr = ` dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
+    let cmdStr = `/usr/local/bin/publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
     console.log(cmdStr);
    //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
 
@@ -511,9 +468,8 @@ document.getElementById("btnPublish").onclick = () => {
 function ProjectsPublish(){
     return new Promise((resolve) => {
         // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
-        let cmdStr = ` dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
+        let cmdStr = `/usr/local/bin/dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
         console.log(cmdStr);
-        //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
 
         let workerProcess = exec(cmdStr,{});
         // 不受child_process默认的缓冲区大小的使用方法，没参数也要写上{}：workerProcess = exec(cmdStr, {})
