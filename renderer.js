@@ -429,7 +429,7 @@ function listenMessage() {
 //项目生成
 document.getElementById("btnPublish").onclick = () => {
     // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
-    let cmdStr = `/usr/local/bin/publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
+    let cmdStr = `/usr/local/bin/dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
     console.log(cmdStr);
    //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
 
