@@ -1,7 +1,7 @@
 {
   "name": "deploy",
-  "version": "2.0.2",
-  "description": "陆霸霸的项目发布工具",
+  "version": "2.0.3",
+  "description": "Lucifer Deploy Tool",
   "main": "main.js",
   "scripts": {
     "clean": "yarn autoclean -F",

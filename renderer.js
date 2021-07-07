@@ -178,32 +178,32 @@ document.getElementById("btnDeleteConfig").onclick = () => {
 };
 
 //通过scp上传文件夹到服务器上
-function scpLocalFileToServer(server, data) {
+function scpLocalFileToServer(server) {
     return new Promise((resolve, reject) => {
         const localPath = getValue('txtPackPath')+'/'+getValue('txtProjectName');
             // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
             let cmdStr = ` scp -r ${localPath} ${getValue('txtUserName')}@${getValue('txtIp')}:${getValue('txtProjectServerPath')} `;
             console.log(cmdStr);
-            const ls = spawn(cmdStr, {
+            const scp = spawn(cmdStr, {
                 encoding: 'utf8',
                 cwd: process.cwd(), // 执行命令路径
                 shell: true, // 使用shell命令
               })
               
               // 监听标准输出
-              ls.stdout.on('data', (data) => {
+              scp.stdout.on('data', (data) => {
                 console.log(`stdout: ${data}`);
               });
               
               // 监听标准错误
-              ls.stderr.on('data', (data) => {
+              scp.stderr.on('data', (data) => {
                 console.error(`stderr: ${data}`);
                 reject('上传失败！');
               });
               
               // 子进程关闭事件
-              ls.on('close', (code) => {
-                console.log(`子进程退出，退出码 ${code}`);
+              scp.on('close', (code) => {
+                //console.log(`子进程退出，退出码 ${code}`);
                 resolve('上传成功！');
               });
     })
@@ -290,27 +290,31 @@ document.getElementById("btnDockerDeploy").onclick = () => {
     versionname =  tool.DateFormat('yyyyMMddhhmmss')
     DoShell(server,getValue('txtBeforeShell'))
         .then((data)=>{
+            layer.msg("开始进行发布");
             return ProjectsPublish();
         })
-        .then((data) => {
-                layer.msg("开始上传文件！");
-                return scpLocalFileToServer(server, data);
+        .then((data)=>{
+            layer.msg("开始进行备份项目");
+            return ProjectBackUp(server);
         })
         .then((data) => {
-            layer.msg(data+'创建镜像开始！');
+            layer.msg("开始上传文件！");
+            return scpLocalFileToServer(server);
+        })
+        .then((data) => {
+            layer.msg('开始创建镜像！');
             return BuildImages(server, versionname);
         })
         .then((data) => {
-            layer.msg(data+'开始停止容器！');
+            layer.msg('开始停止容器！');
             return StopContainer(server);
         })
         .then((data) => {
-            layer.msg(data+'开始创建容器！');
-            console.log('create');
+            layer.msg('开始创建容器！');
             return CreateContainer(server, versionname);
         })
         .then((data) => {
-            layer.msg(data+'开始删除之前的容器！');
+            layer.msg('开始删除之前的容器！');
             return DeleteImages(server,getValue('txtProjectName').toLowerCase());
         })
         .then((data)=>{
@@ -325,7 +329,6 @@ document.getElementById("btnDockerDeploy").onclick = () => {
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
-            layer.msg(data);
             console.log(data);
             new Notification("Docker发布",  {
                 title: "LuciferDeploy",
@@ -337,11 +340,10 @@ document.getElementById("btnDockerDeploy").onclick = () => {
 //发布文件到服务器上面
 document.getElementById('btnFileDeploy').onclick = () => {
     const server = getServer();
-    var filename, versionname;
     DoShell(server,getValue('txtBeforeShell'))
         .then((data) => {
             layer.msg("开始上传文件！");
-            return scpLocalFileToServer(server, data);
+            return scpLocalFileToServer(server);
         })
         .then(data=>{
             new Notification("文件发布",  {
@@ -359,7 +361,6 @@ document.getElementById('btnFileDeploy').onclick = () => {
             });
         })
 };
-
 
 //新增项目配置
 document.getElementById('btnAddProjectConfig').onclick = () => {
@@ -428,43 +429,20 @@ function listenMessage() {
 
 //项目生成
 document.getElementById("btnPublish").onclick = () => {
-    // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
-    let cmdStr = `/usr/local/bin/publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
-    console.log(cmdStr);
-   //let workerProcess = exec('dotnet', [`publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")}`]);
-
-    let workerProcess = exec(cmdStr,{});
-    // 不受child_process默认的缓冲区大小的使用方法，没参数也要写上{}：workerProcess = exec(cmdStr, {})
-
-    // 打印正常的后台可执行程序输出
-    workerProcess.stdout.on('data', function (data) {
-        console.log('stdout: ' + data);
+    ProjectsPublish().then((data)=>{
+        new Notification("项目生成",  {
+            title: "失败!",
+            body: "项目发布失败，请解决问题后重试！"
+        });
+    }).catch((data) => {
+        new Notification("项目生成",  {
+            title: "发布成功!",
+            body: "发布成功!"
+        });
     });
-
-    // 打印错误的后台可执行程序输出
-    workerProcess.stderr.on('data', function (data) {
-        console.log('stderr: ' + data);
-    });
-
-    // 退出之后的输出 1失败，0成功
-    workerProcess.on('close', function (code) {
-        console.log('public result=>' + code);
-        if (code > 0) {
-            //layer.alert("");
-            new Notification("项目生成",  {
-                title: "失败!",
-                body: "项目发布失败，请解决问题后重试！"
-            });
-        } else {
-            new Notification("项目生成",  {
-                title: "发布成功!",
-                body: "发布成功!"
-            });
-        }
-    })
 };
 
-//生成发布后的项目
+// 生成发布后的项目
 function ProjectsPublish(){
     return new Promise((resolve) => {
         // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
@@ -495,6 +473,25 @@ function ProjectsPublish(){
         });
     });
 }
+
+// 备份项目
+function ProjectBackUp(server){
+    return new Promise((resolve, reject) => {
+        var path = `${getValue('txtProjectServerPath')}/${getValue("txtProjectName")}`;
+        const cmd = `cp -rf ${path} ${path}${tool.DateFormat('yyyyMMddhhmmss')}`;
+        console.log(cmd);
+        ssh.Exec(server
+            , cmd
+            , function (code, signal) {
+                if (code > 0) {
+                    console.log("备份成功！")
+                }else{
+                    console.log("备份失败！")
+                }    
+                resolve("备份成功！");            
+            })
+    })
+}    
 
 //删除容器
 function DeleteContainer(server,container){
