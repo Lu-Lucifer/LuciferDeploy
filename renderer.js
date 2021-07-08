@@ -453,7 +453,7 @@ document.getElementById("btnPublish").onclick = () => {
 function ProjectsPublish(){
     return new Promise((resolve) => {
 
-        
+
         // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
         let cmdStr = `/usr/local/bin/dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
         console.log(cmdStr);
@@ -486,8 +486,7 @@ function ProjectsPublish(){
 // 备份项目
 function ProjectBackUp(server){
     return new Promise((resolve, reject) => {
-        var path = `${getValue('txtProjectServerPath')}/${getValue("txtProjectName")}`;
-        const cmd = `cp -rf ${path} backup-${path}-${tool.DateFormat('yyyyMMddhhmmss')}`;
+        const cmd = `cp -rf ${getValue('txtProjectServerPath')}/${getValue("txtProjectName")} ${getValue('txtProjectServerPath')}/${getValue("txtProjectName")}-backup-${tool.DateFormat('yyyyMMddhhmmss')}`;
         console.log(cmd);
         ssh.Exec(server
             , cmd
