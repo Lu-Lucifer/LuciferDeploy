@@ -1,11 +1,12 @@
 {
   "name": "deploy",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "description": "Lucifer Deploy Tool",
   "main": "main.js",
   "scripts": {
-    "clean": "yarn autoclean -F",
     "start": "electron .",
+    "clean": "yarn autoclean -F",
+    "cleanPublish": "rm -rf publish",
     "build-mac-x64": "electron-builder --mac --x64",
     "build-mac-m1": "electron-builder --mac --arm64",
     "build-win": "electron-builder --win --x64"

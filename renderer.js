@@ -322,18 +322,20 @@ document.getElementById("btnDockerDeploy").onclick = () => {
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Deploy');
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/Release');
-            new Notification("Docker发布",  {
-                title: "LuciferDeploy",
-                body: "发布完成!"
-            });
+            layer.alert("发布完成!")
+            // new Notification("Docker发布",  {
+            //     title: "LuciferDeploy",
+            //     body: "发布完成!"
+            // });
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
             console.log(data);
-            new Notification("Docker发布",  {
-                title: "LuciferDeploy",
-                body: "发布失败!"
-            });
+            layer.alert("发布失败!")
+            // new Notification("Docker发布",  {
+            //     title: "LuciferDeploy",
+            //     body: "发布失败!"
+            // });
         })
 };
 
@@ -346,19 +348,21 @@ document.getElementById('btnFileDeploy').onclick = () => {
             return scpLocalFileToServer(server);
         })
         .then(data=>{
-            new Notification("文件发布",  {
-                title: "成功",
-                body: "发布成功!"
-            });
+            layer.alert("发布成功!")
+            // new Notification("文件发布",  {
+            //     title: "成功",
+            //     body: "发布成功!"
+            // });
             fs.IfNotExistsDelete(getValue('txtPackPath')+'/'+getValue('txtProjectName'));
             return DoShell(server,getValue('txtAfterShell'))
         })
         .catch((data) => {
             console.log(data);
-            new Notification("文件发布",  {
-                title: "发布失败!",
-                body: "发布失败!"
-            });
+            layer.alert("发布失败!")
+            // new Notification("文件发布",  {
+            //     title: "发布失败!",
+            //     body: "发布失败!"
+            // });
         })
 };
 
@@ -430,21 +434,26 @@ function listenMessage() {
 //项目生成
 document.getElementById("btnPublish").onclick = () => {
     ProjectsPublish().then((data)=>{
-        new Notification("项目生成",  {
-            title: "失败!",
-            body: "项目发布失败，请解决问题后重试！"
-        });
+        layer.alert("项目生成成功!")
+        // new Notification("项目生成",  {
+        //     title: "发布成功!",
+        //     body: "发布成功!"
+        // });
+        
     }).catch((data) => {
-        new Notification("项目生成",  {
-            title: "发布成功!",
-            body: "发布成功!"
-        });
+        layer.alert("项目生成失败，请解决问题后重试！")
+        // new Notification("项目生成",  {
+        //     title: "失败!",
+        //     body: "项目发布失败，请解决问题后重试！"
+        // });
     });
 };
 
 // 生成发布后的项目
 function ProjectsPublish(){
     return new Promise((resolve) => {
+
+        
         // 执行命令行，如果命令不需要路径，或就是项目根目录，则不需要cwd参数：
         let cmdStr = `/usr/local/bin/dotnet publish ${getValue('txtProjectPath')} -c Release -o ${getValue('txtPackPath')}/${getValue("txtProjectName")} `;
         console.log(cmdStr);
@@ -478,17 +487,12 @@ function ProjectsPublish(){
 function ProjectBackUp(server){
     return new Promise((resolve, reject) => {
         var path = `${getValue('txtProjectServerPath')}/${getValue("txtProjectName")}`;
-        const cmd = `cp -rf ${path} ${path}${tool.DateFormat('yyyyMMddhhmmss')}`;
+        const cmd = `cp -rf ${path} backup-${path}-${tool.DateFormat('yyyyMMddhhmmss')}`;
         console.log(cmd);
         ssh.Exec(server
             , cmd
-            , function (code, signal) {
-                if (code > 0) {
-                    console.log("备份成功！")
-                }else{
-                    console.log("备份失败！")
-                }    
-                resolve("备份成功！");            
+            , function (code, signal) { 
+                resolve("backup ok！");            
             })
     })
 }    
