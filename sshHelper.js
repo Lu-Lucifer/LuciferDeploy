@@ -47,11 +47,11 @@ function Shell(server, cmd, then){
 					then(err, buf);
 				}).on('data', function(data){
 					buf=buf+data;	
-					process.stdout.write(data);								
+					process.stdout.write("["+new Date()+'] '+data);								
 				}).on("error", function (data) {
-					console.log('err: ' + data);
+					console.log("["+new Date()+'] err: ' + data);
 				}).stderr.on('data', function(data) {
-					console.log('stderr: ' + data);
+					console.log("["+new Date()+'] stderr: ' + data);
 				});	
 				stream.end(cmd);		
 			}							
@@ -77,10 +77,10 @@ function Exec(server,cmd,then){
 				conn.end();
 				then(code, signal);
 			}).on('data', function(err,data) {
-				console.log(err.toString());
+				console.log("["+new Date()+'] ' + err.toString());
 				//console.log('STDOUT: ' + data);
 			}).stderr.on('data', function(data) {
-				console.log('STDERR: ' + data);
+				console.log("["+new Date()+'] STDERR: ' + data);
 			});
 
 		});

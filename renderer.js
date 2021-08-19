@@ -463,12 +463,12 @@ function ProjectsPublish(){
 
         // 打印正常的后台可执行程序输出
         workerProcess.stdout.on('data', function (data) {
-            console.log('stdout: ' + data);
+            console.log("["+new Date()+'] stdout: ' + data);
         });
 
         // 打印错误的后台可执行程序输出
         workerProcess.stderr.on('data', function (data) {
-            console.log('stderr: ' + data);
+            console.log("["+new Date()+'] stderr: ' + data);
         });
 
         // 退出之后的输出 1失败，0成功
