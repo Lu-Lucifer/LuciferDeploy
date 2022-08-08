@@ -5,3 +5,4 @@ node_modules
 .vscode
 yarn.lock
 publish
+pnpm-lock.yaml

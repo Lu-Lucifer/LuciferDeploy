@@ -20,7 +20,7 @@
       "*.js",
       "*.html",
       "package.json",
-      "yarn.lock",
+      "pnpm-lock.yaml",
       "node_modules",
       "images"
     ],
@@ -41,15 +41,22 @@
   "license": "MIT",
   "devDependencies": {
     "electron": "^13.1.2",
-    "electron-builder": "^22.11.7"
+    "electron-builder": "^23.3.3"
   },
   "dependencies": {
+    "asn1": "^0.2.6",
     "async": "^3.1.0",
+    "bcrypt-pbkdf": "^1.0.2",
     "fstream": "^1.0.12",
+    "graceful-fs": "^4.2.10",
+    "is-promise": "^4.0.0",
     "layui-src": "^2.5.4",
+    "lodash": "^4.17.21",
     "lowdb": "^1.0.0",
     "node-ssh": "^7.0.0",
     "node-uuid": "^1.4.8",
-    "ssh2": "^1.1.0"
+    "safer-buffer": "^2.1.2",
+    "ssh2": "^1.1.0",
+    "tweetnacl": "^1.0.3"
   }
 }
