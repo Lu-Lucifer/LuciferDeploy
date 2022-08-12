@@ -1,5 +1,5 @@
 # LuciferDeploy
-发布工具
+Lucifer发布工具，主要是将.Net Core项目进行打包，发送到服务器，进行镜像创建，然后运行容器。
 
 ## 使用到的技术
 - electron
